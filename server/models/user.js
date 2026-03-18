@@ -14,21 +14,18 @@ module.exports = (sequelize, DataTypes) => {
           isEmail: true,
         },
       },
+      password: {
+        type: DataTypes.STRING(100),
+        validate: {
+          len: [8, 100],
+          allowNull: false
+        }
+      },
       firstName: {
         type: DataTypes.STRING(100),
       },
       lastName: {
         type: DataTypes.STRING(100),
-      },
-      userName: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-        validate: {
-          len: [2, 200],
-        },
-      },
-      description: {
-        type: DataTypes.TEXT,
       },
       imageURL: {
         type: DataTypes.STRING(255),
