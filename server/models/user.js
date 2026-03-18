@@ -1,0 +1,42 @@
+module.exports = (sequelize, DataTypes) => {
+  return sequelize.define(
+    "user",
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      email: {
+        type: DataTypes.STRING(200),
+        validate: {
+          len: [4, 200],
+          isEmail: true,
+        },
+      },
+      firstName: {
+        type: DataTypes.STRING(100),
+      },
+      lastName: {
+        type: DataTypes.STRING(100),
+      },
+      userName: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        validate: {
+          len: [2, 200],
+        },
+      },
+      description: {
+        type: DataTypes.TEXT,
+      },
+      imageURL: {
+        type: DataTypes.STRING(255),
+        validate: {
+            isURL: true
+        }
+      }
+    },
+    { underscored: true },
+  );
+};
