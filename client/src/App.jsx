@@ -1,11 +1,16 @@
-
+import {Link} from 'react-router-dom';
 
 function App() {
-
-
-  return (
+ return (
     <>
-    
+    <ul>
+      <li>
+        <Link to= "/">Home</Link>
+      </li>
+      <li>
+        <Link to= "/product/new">Skapa produkt</Link>
+      </li>
+    </ul>
     </>
   )
 }
