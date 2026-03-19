@@ -3,12 +3,12 @@ module.exports = module.exports = (sequelize, DataTypes) => {
     "cart",
     {
       id: {
-        type: DataType.INTEGER,
+        type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
       payed: {
-        type: DataTypes.BOOL,
+        type: DataTypes.BOOLEAN,
         allowNull: false,
       },
     },
