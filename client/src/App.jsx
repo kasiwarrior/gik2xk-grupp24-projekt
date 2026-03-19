@@ -1,16 +1,19 @@
 import {Link, Outlet} from 'react-router-dom';
+import {Box, AppBar, Toolbar, Typography, Button} from '@mui/material';
 
 function App() {
  return (
     <>
-    <ul>
-      <li>
-        <Link to= "/">Home</Link>
-      </li>
-      <li>
-        <Link to= "/product/new">Skapa/ändra produkt</Link>
-      </li>
-    </ul>
+        <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Link to= "/">Home</Link>
+          </Typography>
+          <Button color="inherit"><Link to= "/product/new">Skapa/ändra produkt</Link></Button>
+        </Toolbar>
+      </AppBar>
+    </Box>
     <Outlet />
     </>
   )
