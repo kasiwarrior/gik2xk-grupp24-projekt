@@ -1,4 +1,4 @@
-import {Link} from 'react-router-dom';
+import {Link, Outlet} from 'react-router-dom';
 
 function App() {
  return (
@@ -8,9 +8,10 @@ function App() {
         <Link to= "/">Home</Link>
       </li>
       <li>
-        <Link to= "/product/new">Skapa produkt</Link>
+        <Link to= "/product/new">Skapa/ändra produkt</Link>
       </li>
     </ul>
+    <Outlet />
     </>
   )
 }
