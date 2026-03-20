@@ -48,6 +48,11 @@ db.product.hasMany(db.rating, {
   allowNull: false
 })
 
+db.rating.belongsTo(db.user, {foreignKey: {allowNull: false}});
+db.user.hasMany(db.rating, {
+  allowNull: false
+})
+
 db.cart.belongsToMany(db.product, { through: db.cart_row });
 db.product.belongsToMany(db.cart, { through: db.cart_row });
 
