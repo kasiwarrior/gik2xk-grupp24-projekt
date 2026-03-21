@@ -1,13 +1,13 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
-    "ratings",
+    "rating",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      password: {
+      score: {
         type: DataTypes.DOUBLE,
         validate: {
           allowNull: false,

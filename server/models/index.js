@@ -53,8 +53,8 @@ db.user.hasMany(db.rating, {
   allowNull: false
 })
 
-db.cart.belongsToMany(db.product, { through: db.cart_row });
-db.product.belongsToMany(db.cart, { through: db.cart_row });
+db.cart.belongsToMany(db.product, { through: db.cartRow });
+db.product.belongsToMany(db.cart, { through: db.cartRow });
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

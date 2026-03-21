@@ -1,15 +1,20 @@
 const db = require('../models');
 const validate = require('validate.js');
-const constraints = {
-    title:{
-        length: {
-        minimum: 2,
-        maximum: 100,
-        tooshort: "^Titeln måste vara minst %{count} tecken lång. ",
-        toolong: "^Titeln får inte vara längre än %{count} tecken lång."
 
+const constraints = {
+    name: {
+        length: {
+            minimum: 2,
+            maximum: 100,
+            tooShort: "^Namnet måste vara minst %{count} tecken långt.",
+            tooLong: "^Namnet får inte vara längre än %{count} tecken långt."
         }
-       
+    },
+    price: {
+        numericality: {
+            greaterThan: 0,
+            notGreaterThan: "^Priset måste vara större än 0."
+        }
     }
 };
 
@@ -19,178 +24,191 @@ const {
     createResponseMessage
 } = require('../helpers/responseHelper');
 
-async function getById(id) {
-        try {
-        const product = await db.product.findOne({
-        where: { id },
-        include: [
-            db.user,
-            db.tag,
-            {
-                model: db.comment,
-                include: [db.user]
-            }
-        ]
-    });
-        return createResponseSucces(_formatPost(product));
-    } catch (error) {
-        return createResponseError(error.status, error.message);
-    }
-}
-
-async function getByCart(cartId) {
-        try {
-        const cart = await db.cart.findOne({where: {id: cartID}});    
-        const allProducts = await cart.getPosts({include: [db.product, db.cart]});
-        return createResponseSucces(allProducts.map(product => _formatPost(product)));
-    } catch (error) {
-        return createResponseError(error.status, error.message);
-    }
-}
-
-async function getAll() {
+// Hämtar produkten via ID, includerar rating
+async function getProductById(id) {
     try {
-        const allPosts = await db.post.findAll({include: [db.user, db.tag]});
-        return createResponseSucces(allPosts.map(post => _formatPost(post)));
+        const product = await db.product.findOne({
+            where: { id },
+            include: [
+                {
+                    model: db.rating,
+                    include: [db.user] // Hämtar user som skrev rating
+                }
+            ]
+        });
+        
+        if (!product) {
+            return createResponseError(404, 'Produkten hittades inte.');
+        }
+        return createResponseSucces(_formatProduct(product));
     } catch (error) {
-        return createResponseError(error.status, error.message);
+        return createResponseError(500, error.message);
     }
 }
 
-async function create(post) {
-    const invalidData = validate(post, constraints);
+// Hämtar cart och alla products som är kopplade till den
+async function getCartById(cartId) {
+    try {
+        const cart = await db.cart.findOne({
+            where: { id: cartId },
+            include: [db.product] // hämtar via cart_row
+        });
+        
+        if (!cart) {
+            return createResponseError(404, 'Varukorgen hittades inte.');
+        }
+        return createResponseSucces(cart);
+    } catch (error) {
+        return createResponseError(500, error.message);
+    }
+}
+
+async function getAllProducts() {
+    try {
+        const allProducts = await db.product.findAll();
+        return createResponseSucces(allProducts);
+    } catch (error) {
+        return createResponseError(500, error.message);
+    }
+}
+
+async function createProduct(productData) {
+    const invalidData = validate(productData, constraints);
     if (invalidData) {
         return createResponseError(422, invalidData);
-    } else {
-        try {
-           const newPost = await db.post.create(post);
-
-           await _addTagToPost(newPost, post.tags);
-           return createResponseSucces(newPost);
-        } catch (error) {
-            return createResponseError(error.status, error.message);
-        }
+    } 
+    
+    try {
+        const newProduct = await db.product.create(productData);
+        return createResponseSucces(newProduct);
+    } catch (error) {
+        return createResponseError(500, error.message);
     }
 }
      
-async function addComment(id, comment) {
-    const invalidData = validate(comment, constraints);
-    if (!id) {
-        return createResponseError(422, 'Id är obligatoriskt.');
+// Lägg till en rating
+async function addRating(productId, userId, ratingData) {
+    if (!productId || !userId) {
+        return createResponseError(422, 'Product-ID och User-ID är obligatoriska.');
     }  
     try {
-    comment.postId = id;
-    const newComment = await db.comment.create(comment);
-    return createResponseSucces(newComment);
+        // både productId och userId
+        ratingData.productId = productId;
+        ratingData.userId = userId; 
+        
+        const newRating = await db.rating.create(ratingData);
+        return createResponseSucces(newRating);
     } catch (error) {
-    return createResponseError(error.status, error.message);
+        return createResponseError(500, error.message);
     }
-    
 }
 
-async function update(post, id) {
-    const invalidData = validate(post, constraints );
+// Uppdatera
+async function updateProduct(id, productData) {
     if (!id) {
         return createResponseError(422, 'Id är obligatoriskt');
-        }
+    }
+
+    const invalidData = validate(productData, constraints);
     if (invalidData) {
         return createResponseError(422, invalidData);
-        } 
+    } 
+
     try {
-        const existingPost = await db.post.findOne({where: {id}});  
-         if (!existingPost) {
-        return createResponseError(404, 'Inlägget hittades inte!.');
+        const existingProduct = await db.product.findOne({ where: { id } });  
+        if (!existingProduct) {
+            return createResponseError(404, 'Produkten hittades inte.');
         }
-        await _addTagToPost(existingPost, post.tags);
-        await db.post.update(post, {
-            where: {id}
+
+        await db.product.update(productData, {
+            where: { id }
         });
-        return createResponseMessage(200, 'Inlägget uppdaterades')
+
+        return createResponseMessage(200, 'Produkten uppdaterades framgångsrikt.');
     } catch (error) {
-        return createResponseError(error.status, error.message);
+        return createResponseError(500, error.message);
     }
-      
 }
 
-async function destroy(id) {
+// Delete
+async function deleteProduct(id) {
     if (!id) {
         return createResponseError(422, 'Id är obligatoriskt');
     }
+
     try {
-        await db.post.destroy({
-        where: { id }
-    })
-    return createResponseMessage(200, 'Inlägget raderades')
+        const deletedCount = await db.product.destroy({
+            where: { id }
+        });
+
+        if (deletedCount === 0) {
+            return createResponseError(404, 'Produkten hittades inte.');
+        }
+
+        return createResponseMessage(200, 'Produkten raderades framgångsrikt.');
     } catch (error) {
-    return createResponseError(error.status, error.message);
+        return createResponseError(500, error.message);
     }
-  
+}  
+
+// lägg till product i cart
+async function addProductToCart(cartId, productId, amountToAdd = 1) {
+    try {
+        const cart = await db.cart.findOne({ where: { id: cartId } });
+        if (!cart) return createResponseError(404, 'Varukorgen hittades inte.');
+        
+        // kollar om producten redan finns i cart
+        const existingProducts = await cart.getProducts({ where: { id: productId } });
+        
+        if (existingProducts.length > 0) {
+            // om den gör det så lägger den till mängden man vill lägga till på det som redan finns
+            const existingProduct = existingProducts[0];
+            const currentAmount = existingProduct.cart_row.amount;
+            const newAmount = currentAmount + amountToAdd;
+            
+            await cart.addProduct(productId, { through: { amount: newAmount } });
+            
+            return createResponseMessage(200, `Antalet uppdaterades till ${newAmount}`);
+        } else {
+            // finns inte så lägger man bara till den
+            await cart.addProduct(productId, { through: { amount: amountToAdd } });
+            
+            return createResponseMessage(200, 'Produkten lades till i varukorgen');
+        }
+    } catch (error) {
+        return createResponseError(500, error.message);
+    }
 }
 
-function _formatPost(post) {
-    const cleanPost = {
-        id: post.id,
-        title: post.title,
-        body: post.body,
-        imageUrl: post.imageUrl,
-        createdAt: post.createdAt,
-        updatedAt: post.updatedAt,
-        author: {
-            id: post.user.id,
-            username: post.user.username,
-            email: post.user.email,
-            firstName: post.user.firstName,
-            lastName: post.user.lastName,
-            imageUrl: post.user.imageUrl
-        },
-        tags: []
+
+// Helper: formatering
+function _formatProduct(product) {
+    const cleanProduct = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        imageUrl: product.imageUrl,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+        ratings: []
     };
 
-    if (post.comments) {
-        cleanPost.comments = [];
-        post.comments.map((comment) => { 
-          return (cleanPost.comments = [ 
-            {
-                title: comment.title,
-                author: comment.user.username,
-                createdAt: comment.createdAt
-            },
-            ...cleanPost.comments,
-          ]);
-        });
+    if (product.ratings && product.ratings.length > 0) {
+        cleanProduct.ratings = product.ratings.map((rating) => ({
+            score: rating.score,
+            author: rating.user ? `${rating.user.firstName} ${rating.user.lastName}` : 'Okänd användare',
+            createdAt: rating.createdAt
+        }));
     }
 
-    if (post.tags){
-    post.tags.map((tag) => {
-        return (cleanPost.tags = [tag.name, ...cleanPost.tags]);
-    });
-    return cleanPost;
-    }
-}
-
-async function _findOrCreateTagId(name) {
-    name = name.toLowerCase().trim();
-    const foundOrCreatedTag = await db.tag.findOrCreate({where: { name }});
-
-    return foundOrCreatedTag[0].id; 
-}
-
-async function _addTagToPost(post,tags) {
-    if (tags  && tags.length) {
-        for (const tag of tags) {
-            const tagId = await _findOrCreateTagId(tag);
-            await post.addTag(tagId);
-        }
-    }
+    return cleanProduct;
 }
 
 module.exports = {
-    getByAuthor,
-    getByTag,
-    getById,
-    getAll,
-    addComment,
-    create,
-    update,
-    destroy
+    getProductById,
+    getCartById,
+    getAllProducts,
+    createProduct,
+    addRating,
+    addProductToCart
 };
