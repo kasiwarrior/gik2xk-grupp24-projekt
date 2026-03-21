@@ -163,7 +163,7 @@ async function addProductToCart(cartId, productId, amountToAdd = 1) {
         if (existingProducts.length > 0) {
             // om den gör det så lägger den till mängden man vill lägga till på det som redan finns
             const existingProduct = existingProducts[0];
-            const currentAmount = existingProduct.cart_row.amount;
+            const currentAmount = existingProduct.cartRow.amount;
             const newAmount = currentAmount + amountToAdd;
             
             await cart.addProduct(productId, { through: { amount: newAmount } });
