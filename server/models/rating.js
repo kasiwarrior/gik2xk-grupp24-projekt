@@ -9,9 +9,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       score: {
         type: DataTypes.DOUBLE,
-        validate: {
           allowNull: false,
-        },
+
       },
     },
     { underscored: true },
