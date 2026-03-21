@@ -22,7 +22,7 @@ router.delete('/products/:id', productController.deleteProduct);
 router.post('/products/:id/ratings', productController.addRating);
 
 // Cart Routes 
-// GET /api/carts/:id - hämta cart och alla products 
+// GET /api/carts/:id - hämta cart och alla products kopplade till den
 router.get('/carts/:id', productController.getCartById);
 
 // POST /api/carts/:cartId/products - Lägg till product i cart
