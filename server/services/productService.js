@@ -209,6 +209,8 @@ module.exports = {
     getCartById,
     getAllProducts,
     createProduct,
+    updateProduct,
+    deleteProduct,
     addRating,
     addProductToCart
 };

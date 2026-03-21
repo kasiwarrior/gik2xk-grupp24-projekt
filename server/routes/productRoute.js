@@ -1,31 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const shopController = require('../controllers/productController');
+const productController = require('../controllers/productController');
 
 // Product Routes 
 // GET /api/products - Hämtar alla products
-router.get('/products', shopController.getAllProducts);
+router.get('/products', productController.getAllProducts);
 
 // GET /api/products/:id - Hämtar en specefik produkt
-router.get('/products/:id', shopController.getProductById);
+router.get('/products/:id', productController.getProductById);
 
 // POST /api/products - skapa en ny product
-router.post('/products', shopController.createProduct);
+router.post('/products', productController.createProduct);
 
 // PUT /api/products/:id - Uppdatera en specefik produkt
-router.put('/products/:id', shopController.updateProduct);
+router.put('/products/:id', productController.updateProduct);
 
 // DELETE /api/products/:id - Radera en specefik produkt
-router.delete('/products/:id', shopController.deleteProduct);
+router.delete('/products/:id', productController.deleteProduct);
 
 // POST /api/products/:id/ratings - Lägg till en rating
-router.post('/products/:id/ratings', shopController.addRating);
+router.post('/products/:id/ratings', productController.addRating);
 
 // Cart Routes 
 // GET /api/carts/:id - hämta cart och alla products 
-router.get('/carts/:id', shopController.getCartById);
+router.get('/carts/:id', productController.getCartById);
 
 // POST /api/carts/:cartId/products - Lägg till product i cart
-router.post('/carts/:cartId/products', shopController.addProductToCart);
+router.post('/carts/:cartId/products', productController.addProductToCart);
 
 module.exports = router;
