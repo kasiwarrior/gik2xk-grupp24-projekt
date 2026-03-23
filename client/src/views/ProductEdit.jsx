@@ -10,6 +10,7 @@ function ProductEdit() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
     async function loadProduct() {
@@ -17,9 +18,10 @@ function ProductEdit() {
 
       const product = await getOne(id);
       if (product) {
-        setTitle(product.title ?? "");
+        setTitle(product.name ?? "");
         setDescription(product.description ?? "");
         setPrice(product.price ?? "");
+        setImageUrl(product.imageUrl ?? "");
       }
     }
 
@@ -32,7 +34,8 @@ function ProductEdit() {
     const productData = {
       name: title,
       description,
-      price: Number(price)
+      price: Number(price),
+      imageUrl,
     };
 
     if (isEditMode) {
@@ -76,6 +79,22 @@ function ProductEdit() {
             onChange={(e) => setPrice(e.target.value)}
           />
         </div>
+
+        <div>
+          <input
+            type="text"
+            placeholder="Bild-URL"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+          />
+        </div>
+
+        {imageUrl && (
+          <div>
+            <p>Förhandsvisning:</p>
+            <img src={imageUrl} alt="Förhandsvisning" width="200" />
+          </div>
+        )}
 
         <button type="submit">
           {isEditMode ? "Spara ändringar" : "Skapa produkt"}
