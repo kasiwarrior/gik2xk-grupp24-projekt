@@ -7,6 +7,7 @@ import Home from './views/Home.jsx'
 import ProductEdit from './views/ProductEdit.jsx'
 import ProductDetails from './views/ProductDetails.jsx'
 import Cart from './views/Cart.jsx'
+import UserList from './views/UserList.jsx'
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
       {
         path: 'cart',
         element: <Cart />
+      },
+      {
+        path: 'users',
+        element: <UserList />
       }
     ]
   }
@@ -43,4 +48,4 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <RouterProvider router={router} />
   </StrictMode>
-);
+)

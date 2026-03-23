@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getOne } from "../services/ProductService";
 import axios from "../services/api";
+import { Link } from "react-router-dom";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -79,6 +80,8 @@ function ProductDetails() {
       <div style={{ marginTop: "1rem" }}>
         <button onClick={addToCart}>Lägg i kundvagn</button>
       </div>
+
+      <Link to="/cart">Gå till varukorg</Link>
 
       <h3>Snittbetyg</h3>
       {averageRating ? (
