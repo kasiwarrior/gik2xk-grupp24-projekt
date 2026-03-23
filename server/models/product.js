@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
       imageUrl: {
         type: DataTypes.STRING(255),
       },
+      description: {
+        type: DataTypes.STRING(500),
+        allowNull: false
+      }
     },
     { underscored: true },
   );

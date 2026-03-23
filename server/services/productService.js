@@ -188,6 +188,7 @@ function _formatProduct(product) {
         name: product.name,
         price: product.price,
         imageUrl: product.imageUrl,
+        description: product.description,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
         ratings: []
