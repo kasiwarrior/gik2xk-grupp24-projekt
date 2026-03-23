@@ -2,11 +2,22 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+<<<<<<< Updated upstream
 const { access } = require('fs');
 
+=======
+var cors = require('cors');
+>>>>>>> Stashed changes
 
 
 var app = express();
+
+// Enable CORS for frontend communication
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 
 app.use(logger('dev'));
 app.use(express.json());
