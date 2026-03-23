@@ -45,12 +45,14 @@ db.user.hasMany(db.cart, {
 
 db.rating.belongsTo(db.product, {foreignKey: {allowNull: false}});
 db.product.hasMany(db.rating, {
-  allowNull: false
+  allowNull: false,
+  onDelete: 'CASCADE'
 })
 
 db.rating.belongsTo(db.user, {foreignKey: {allowNull: false}});
 db.user.hasMany(db.rating, {
-  allowNull: false
+  allowNull: false,
+  onDelete: 'CASCADE'
 })
 
 db.cart.belongsToMany(db.product, { through: db.cartRow });

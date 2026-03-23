@@ -3,9 +3,11 @@ import { useParams } from "react-router-dom";
 import { getOne } from "../services/ProductService";
 import axios from "../services/api";
 import { Link } from "react-router-dom";
+import { useUser } from "../contexts/userContext";
 
 function ProductDetails() {
   const { id } = useParams();
+  const { currentUser } = useUser();
 
   const [product, setProduct] = useState(null);
   const [rating, setRating] = useState("");
@@ -21,7 +23,7 @@ function ProductDetails() {
 
   async function addToCart() {
     try {
-      await axios.post("/carts/1/products", {
+      await axios.post(`/carts/${currentUser.id}/products`, {
         productId: Number(id),
         amount: 1
       });
@@ -36,7 +38,7 @@ function ProductDetails() {
   async function addRating() {
     try {
       await axios.post(`/products/${id}/ratings`, {
-        userId: 1,
+        userId: currentUser.id,
         score: Number(rating)
       });
 

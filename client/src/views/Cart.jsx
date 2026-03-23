@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "../services/api";
+import { useUser } from "../contexts/userContext";
 
 function Cart() {
+  const { currentUser } = useUser();
 
   const [cart, setCart] = useState(null);
 
@@ -9,7 +11,7 @@ function Cart() {
 
     async function load() {
 
-      const res = await axios.get("/users/1/carts/latest");
+      const res = await axios.get(`/users/${currentUser.id}/carts/latest`);
 
       setCart(res.data.data);
 
@@ -31,6 +33,7 @@ function Cart() {
         <div key={product.id}>
 
           {product.name}
+          {product.description}
 
         </div>
 

@@ -11,6 +11,8 @@ import UserList from "./views/UserList.jsx";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
+import { UserProvider } from "./contexts/userContext.jsx";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -50,6 +52,9 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    {/* 2. VIKTIGT: Wrappa hela RouterProvider med UserProvider */}
+    <UserProvider>
+      <RouterProvider router={router} />
+    </UserProvider>
   </StrictMode>
 );
