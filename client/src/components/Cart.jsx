@@ -4,10 +4,12 @@ import axios from "../services/api";
 
 function Cart() {
   const { id } = useParams();
+
   const userId = id || 1;
 
   const [cart, setCart] = useState(null);
 
+  //Hämtar senaste varukorgen för vald användare.
   useEffect(() => {
     async function load() {
       try {
@@ -23,6 +25,7 @@ function Cart() {
 
   if (!cart) return <p>Laddar...</p>;
 
+  //Räknar ut totalsumman.
   const totalPrice = cart.products.reduce(
     (sum, product) => sum + product.price * product.cartRow.amount,
     0
