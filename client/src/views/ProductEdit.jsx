@@ -13,6 +13,8 @@ import {
 function ProductEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  //Samma komponent både för att skapa och ändra produkter.
   const isEditMode = Boolean(id);
 
   const [title, setTitle] = useState("");
@@ -24,6 +26,7 @@ function ProductEdit() {
     async function loadProduct() {
       if (!isEditMode) return;
 
+      //Hämtar befintlig produkt om användaren redigerar.
       const product = await getOne(id);
       if (product) {
         setTitle(product.name ?? "");

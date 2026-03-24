@@ -17,6 +17,7 @@ import { SnackbarProvider } from "./contexts/SnackbarContext";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "./styles/theme";
 
+//Router för frontendens olika vyer.
 const router = createBrowserRouter([
   {
     path: "/",
