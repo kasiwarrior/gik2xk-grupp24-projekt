@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { getAll } from "../services/ProductService";
+import { getAll, remove } from "../services/ProductService"; 
 import { Link as RouterLink } from "react-router-dom";
+import { useSnackbar } from "../contexts/SnackbarContext";
 
 // MUI
 import {
@@ -17,8 +18,8 @@ import {
 } from "@mui/material";
 
 function ProductList() {
-  // Sätt state till null från början så vi kan visa en laddningssnurra
   const [products, setProducts] = useState(null);
+  const { showSnackbar } = useSnackbar(); // Hämta showSnackbar
 
   useEffect(() => {
     async function loadProducts() {
@@ -29,7 +30,25 @@ function ProductList() {
     loadProducts();
   }, []);
 
-  // Laddningsikon medan vi hämtar från databasen
+  async function handleDelete(productId) {
+    // Fråga användaren om de är säkra 
+    const isConfirmed = window.confirm("Är du säker på att du vill ta bort den här produkten?");
+    if (!isConfirmed) return;
+
+    try {
+      // Anropa backend för att radera produkten
+      await remove(productId);
+      
+      // Uppdatera listan på skärmen direkt
+      setProducts(products.filter(product => product.id !== productId));
+      
+      // Visa bekräftelse
+      showSnackbar("Produkten har tagits bort!", "success");
+    } catch (error) {
+      showSnackbar("Det gick inte att ta bort produkten.", "error");
+    }
+  }
+
   if (products === null) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
@@ -38,19 +57,14 @@ function ProductList() {
     );
   }
 
-  // Om databasen är tom
   if (products.length === 0) {
     return <Alert severity="info">Inga produkter hittades i databasen.</Alert>;
   }
 
   return (
-    // Grid-container skapar ett responsivt rutnät
     <Grid container spacing={4}>
-      
       {products.map(product => (
-        // xs=12 (mobil: 1 kolumn), sm=6 (tablet: 2 kolumner), md=4 (desktop: 3 kolumner)
         <Grid item xs={12} sm={6} md={4} key={product.id}>
-          
           <Card 
             sx={{ 
               height: '100%', 
@@ -58,10 +72,9 @@ function ProductList() {
               flexDirection: 'column',
               boxShadow: 2,
               transition: '0.3s',
-              '&:hover': { boxShadow: 6, transform: 'translateY(-4px)' } // hover
+              '&:hover': { boxShadow: 6, transform: 'translateY(-4px)' } 
             }}
           >
-            {/* Produktbild */}
             {product.imageUrl ? (
               <CardMedia
                 component="img"
@@ -76,7 +89,6 @@ function ProductList() {
               </Box>
             )}
             
-            {/* Produktinfo */}
             <CardContent sx={{ flexGrow: 1 }}>
               <Typography gutterBottom variant="h6" component="h2" fontWeight="bold">
                 {product.name}
@@ -86,7 +98,6 @@ function ProductList() {
               </Typography>
             </CardContent>
             
-            {/* Knappar */}
             <CardActions sx={{ justifyContent: "space-between", px: 2, pb: 2 }}>
               <Button 
                 component={RouterLink} 
@@ -95,7 +106,7 @@ function ProductList() {
                 color="primary" 
                 size="small"
               >
-                Visa Produkt
+                Visa
               </Button>
               <Button 
                 component={RouterLink} 
@@ -106,12 +117,21 @@ function ProductList() {
               >
                 Ändra
               </Button>
+
+
+              <Button 
+                variant="outlined" 
+                color="error" 
+                size="small"
+                onClick={() => handleDelete(product.id)}
+              >
+                Ta bort
+              </Button>
             </CardActions>
             
           </Card>
         </Grid>
       ))}
-      
     </Grid>
   );
 }

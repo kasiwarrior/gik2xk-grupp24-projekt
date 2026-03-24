@@ -43,3 +43,13 @@ export async function update(id, product) {
     return null;
   }
 }
+
+export async function remove(id) {
+  try {
+    const response = await axios.delete(`/products/${id}`);
+    return response.data;
+  } catch (e) {
+    console.error("Kunde inte ta bort produkt", e);
+    throw e;
+  }
+}
