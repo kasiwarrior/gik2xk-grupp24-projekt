@@ -9,7 +9,7 @@ function App() {
     <>
       <Box sx={{ flexGrow: 1, mb: 4 }}>
         {/* elevation={3} ger mer skugga */}
-        <AppBar position="static" elevation={3}>
+        <AppBar position="sticky" elevation={2} color="primary">
           <Toolbar>
             
             {/*Home */}

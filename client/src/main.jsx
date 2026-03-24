@@ -14,6 +14,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { UserProvider } from "./contexts/UserContext.jsx";
 import { SnackbarProvider } from "./contexts/SnackbarContext";
 
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "./styles/theme";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -54,9 +57,11 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <UserProvider>
-      <SnackbarProvider>
-        <RouterProvider router={router} />
-      </SnackbarProvider>
+      <ThemeProvider theme={theme}>
+        <SnackbarProvider>
+          <RouterProvider router={router} />
+        </SnackbarProvider>
+      </ThemeProvider>
     </UserProvider>
   </StrictMode>
 );

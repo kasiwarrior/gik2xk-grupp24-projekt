@@ -3,7 +3,7 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#30a9c1",   // navbar-färg
+      main: "#4c00af",   // navbar-färg
     },
     secondary: {
       main: "#2563eb",   // knappar & accent
