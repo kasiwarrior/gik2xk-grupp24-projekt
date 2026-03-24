@@ -12,7 +12,7 @@ function Home() {
         align="center" 
         sx={{ mb: 5, mt: 2 }}
       >
-        Våra Produkter
+        Produkter
       </Typography>
       
       <ProductList />

@@ -12,7 +12,7 @@ function App() {
         <AppBar position="static" elevation={3}>
           <Toolbar>
             
-            {/* Logga / Home */}
+            {/*Home */}
             <Typography 
               variant="h6" 
               component={RouterLink} 
