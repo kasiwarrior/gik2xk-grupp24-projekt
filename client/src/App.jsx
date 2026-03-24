@@ -1,40 +1,74 @@
-import { Link, Outlet } from "react-router-dom";
-import { Box, AppBar, Toolbar, Typography, Button } from "@mui/material";
-import { useUser } from "./contexts/userContext";
+import { Link as RouterLink, Outlet } from "react-router-dom";
+import { Box, AppBar, Toolbar, Typography, Button, Container } from "@mui/material";
+// VIKTIGT: Jag rättade till stort 'U' i UserContext här, utifall att!
+import { useUser } from "./contexts/UserContext";
 
 function App() {
   const { currentUser } = useUser();
+
   return (
     <>
-      <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
+      <Box sx={{ flexGrow: 1, mb: 4 }}>
+        {/* elevation={3} ger mer skugga */}
+        <AppBar position="static" elevation={3}>
           <Toolbar>
-            <Typography sx={{ flexGrow: 1 }}>
-              <Link to="/">Home</Link>
+            
+            {/* Logga / Home */}
+            <Typography 
+              variant="h6" 
+              component={RouterLink} 
+              to="/" 
+              sx={{ 
+                flexGrow: 1, 
+                textDecoration: "none", 
+                color: "inherit", 
+                fontWeight: "bold",
+                letterSpacing: 1
+              }}
+            >
+              SkruvLagret 
             </Typography>
 
-            <Button color="inherit">
-              <Link to="/cart">Varukorg</Link>
+            {/* Navigationslänkar */}
+            <Button color="inherit" component={RouterLink} to="/cart" sx={{ fontWeight: 'medium' }}>
+              Kundvagn
             </Button>
 
-            <Button color="inherit">
-              <Link to="/users">Användare</Link>
+            <Button color="inherit" component={RouterLink} to="/users" sx={{ fontWeight: 'medium' }}>
+              Användare
             </Button>
 
-            <Button color="inherit">
-              <Link to="/products/new">Skapa produkt</Link>
+            <Button color="inherit" component={RouterLink} to="/products/new" sx={{ fontWeight: 'medium' }}>
+              Skapa produkt
             </Button>
 
             {/* VISUALISERA VEM SOM ÄR INLOGGAD */}
-            <Typography variant="body1" sx={{ marginLeft: 2, fontWeight: "bold" }}>
-              {currentUser ? `Inloggad: ${currentUser.firstName}` : "Ej inloggad"}
-            </Typography>
+            <Box 
+              sx={{ 
+                ml: 2, 
+                px: 2, 
+                py: 0.5, 
+                // byter färg basserat på om inloggad eller inte
+                backgroundColor: currentUser ? "rgba(255,255,255,0.2)" : "transparent",
+                border: currentUser ? "none" : "1px solid rgba(255,255,255,0.5)",
+                borderRadius: 2,
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                {currentUser ? `${currentUser.firstName}` : "Ej inloggad"}
+              </Typography>
+            </Box>
             
           </Toolbar>
         </AppBar>
       </Box>
 
-      <Outlet />
+      {/* Container ramar in alla sidor (Outlet) så innehållet inte trycks mot skärmkanterna */}
+      <Container maxWidth="lg" sx={{ pb: 5 }}>
+        <Outlet />
+      </Container>
     </>
   );
 }

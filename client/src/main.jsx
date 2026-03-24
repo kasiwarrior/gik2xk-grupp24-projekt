@@ -11,7 +11,8 @@ import UserList from "./views/UserList.jsx";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import { UserProvider } from "./contexts/userContext.jsx";
+import { UserProvider } from "./contexts/UserContext.jsx";
+import { SnackbarProvider } from "./contexts/SnackbarContext";
 
 const router = createBrowserRouter([
   {
@@ -52,9 +53,10 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    {/* 2. VIKTIGT: Wrappa hela RouterProvider med UserProvider */}
     <UserProvider>
-      <RouterProvider router={router} />
+      <SnackbarProvider>
+        <RouterProvider router={router} />
+      </SnackbarProvider>
     </UserProvider>
   </StrictMode>
 );
