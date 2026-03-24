@@ -2,62 +2,95 @@ import { useEffect, useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { getOne } from "../services/ProductService";
 import axios from "../services/api";
+import { useUser } from "../contexts/UserContext";
+import { useSnackbar } from "../contexts/SnackbarContext"; // Importerade dina snygga notiser!
+
+// MUI
 import {
-  Grid,
-  Paper,
+  Box,
   Typography,
   Button,
-  Stack,
   TextField,
-  Box,
+  Card,
+  CardMedia,
+  CardContent,
+  CircularProgress,
   Divider,
+  Alert,
+  Rating
 } from "@mui/material";
 
 function ProductDetails() {
   const { id } = useParams();
+  const { currentUser } = useUser();
+  const { showSnackbar } = useSnackbar(); // Hämta showSnackbar
 
   const [product, setProduct] = useState(null);
   const [rating, setRating] = useState("");
+  const [amount, setAmount] = useState(1);
 
   useEffect(() => {
     async function load() {
       const data = await getOne(id);
       setProduct(data);
     }
-
     load();
   }, [id]);
 
   async function addToCart() {
+    if (!currentUser) {
+      showSnackbar("Vänligen logga in för att lägga till i varukorg", "warning");
+      return;
+    }
+    
     try {
-      await axios.post("/carts/1/products", {
-        productId: Number(id),
-        amount: 1,
-      });
+      // 1. Hämta den inloggade användarens senaste varukorg
+      const cartResponse = await axios.get(`/users/${currentUser.id}/carts/latest`);
+      const actualCartId = cartResponse.data.data.id; // Plocka ut det riktiga varukorgs-IDt
 
-      alert("Produkten lades till i kundvagnen");
+      // 2. Använd det riktiga varukorgs-IDt för att lägga till produkten
+      await axios.post(`/carts/${actualCartId}/products`, {
+        productId: Number(id),
+        amount: Number(amount)
+      });
+      
+      showSnackbar(`${amount} st lades till i kundvagnen!`, "success");
     } catch (e) {
-      alert("Det gick inte att lägga till i kundvagnen");
+      console.error(e?.response ? e.response.data : e);
+      showSnackbar("Det gick inte att lägga till i kundvagnen", "error");
     }
   }
 
   async function addRating() {
+    if (!currentUser) {
+      showSnackbar("Vänligen logga in för att lämna ett betyg", "warning");
+      return;
+    }
+
     try {
       await axios.post(`/products/${id}/ratings`, {
-        userId: 1,
-        score: Number(rating),
+        userId: currentUser.id,
+        score: Number(rating)
       });
+
+      showSnackbar("Ditt betyg har sparats!", "success");
 
       const updatedProduct = await getOne(id);
       setProduct(updatedProduct);
       setRating("");
-      alert("Betyg sparat");
     } catch (e) {
-      alert("Det gick inte att spara betyget");
+      console.error(e?.response ? e.response.data : e);
+      showSnackbar("Det gick inte att spara rating", "error");
     }
   }
 
-  if (!product) return <Typography>Laddar...</Typography>;
+  if (!product) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   const averageRating =
     product.ratings && product.ratings.length > 0
@@ -68,110 +101,126 @@ function ProductDetails() {
       : null;
 
   return (
-    <Grid container spacing={4}>
-      <Grid item xs={12} md={5}>
-        <Paper sx={{ p: 2, borderRadius: 3 }}>
-          {product.imageUrl ? (
-            <Box
-              component="img"
-              src={product.imageUrl}
-              alt={product.name}
-              sx={{ width: "100%", borderRadius: 2 }}
-            />
-          ) : (
-            <Box
-              sx={{
-                height: 320,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                bgcolor: "#eee",
-                borderRadius: 2,
-              }}
-            >
-              <Typography>Ingen bild</Typography>
-            </Box>
-          )}
-        </Paper>
-      </Grid>
+    <Box sx={{ maxWidth: 900, margin: "0 auto", padding: 3 }}>
+      
+      <Button component={RouterLink} to="/" sx={{ mb: 2 }}>
+        &larr; Tillbaka till produkter
+      </Button>
 
-      <Grid item xs={12} md={7}>
-        <Paper sx={{ p: 4, borderRadius: 3 }}>
-          <Stack spacing={3}>
-            <Typography variant="h4" fontWeight={700}>
+      {/* Produktkortet */}
+      <Card sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, mb: 4, boxShadow: 3 }}>
+        
+        {/* Bild */}
+        {product.imageUrl ? (
+          <CardMedia
+            component="img"
+            sx={{ width: { xs: "100%", md: 400 }, objectFit: "cover" }}
+            image={product.imageUrl}
+            alt={product.name}
+          />
+        ) : (
+          <Box sx={{ width: { xs: "100%", md: 400 }, minHeight: 300, backgroundColor: "grey.200", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Typography variant="caption" color="text.secondary">Ingen bild</Typography>
+          </Box>
+        )}
+
+        {/* Information o Köp */}
+        <CardContent sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <Box>
+            <Typography variant="h3" gutterBottom fontWeight="bold">
               {product.name}
             </Typography>
-
-            <Typography variant="h5" color="primary" fontWeight={700}>
+            <Typography variant="body1" color="text.secondary" paragraph>
+              {product.description}
+            </Typography>
+            <Typography variant="h4" color="success.main" fontWeight="bold" gutterBottom>
               {product.price} kr
             </Typography>
+          </Box>
 
-            <Typography variant="body1">
-              {product.description || "Ingen beskrivning"}
-            </Typography>
+          <Divider sx={{ my: 3 }} />
 
-            <Stack direction="row" spacing={2}>
-              <Button variant="contained" onClick={addToCart}>
+          {/* Varukorgssektionen */}
+          {currentUser ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <TextField
+                label="Antal"
+                type="number"
+                inputProps={{ min: 1 }}
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                sx={{ width: 100 }}
+              />
+              <Button variant="contained" color="primary" size="large" onClick={addToCart}>
                 Lägg i kundvagn
               </Button>
+            </Box>
+          ) : (
+            <Alert severity="warning">Logga in för att lägga till i kundvagnen.</Alert>
+          )}
 
-              <Button variant="outlined" component={RouterLink} to="/cart">
-                Gå till varukorg
-              </Button>
-            </Stack>
+        </CardContent>
+      </Card>
 
-            <Divider />
+      <Button component={RouterLink} to="/cart" variant="outlined" sx={{ mb: 4 }}>
+        Gå till varukorg
+      </Button>
 
-            <Typography variant="h6" fontWeight={700}>
-              Snittbetyg
-            </Typography>
+      {/* Betygssektion */}
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h5" fontWeight="bold" gutterBottom>
+          Recensioner
+        </Typography>
 
-            <Typography>
-              {averageRating ? `${averageRating} / 5` : "Inga betyg än"}
-            </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+          <Typography variant="h6">
+            Snittbetyg: {averageRating ? `${averageRating} / 5` : "Inga betyg än"}
+          </Typography>
+          {/* MUI element */}
+          {averageRating && <Rating value={Number(averageRating)} precision={0.1} readOnly />}
+        </Box>
 
-            <Typography variant="h6" fontWeight={700}>
-              Lägg betyg
-            </Typography>
+        {/* Lägg till eget betyg */}
+        {currentUser ? (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4, p: 2, backgroundColor: "#f9f9f9", borderRadius: 2 }}>
+            <TextField
+              label="Ditt betyg (1-5)"
+              type="number"
+              inputProps={{ min: 1, max: 5 }}
+              value={rating}
+              onChange={(e) => setRating(e.target.value)}
+              sx={{ width: 150 }}
+            />
+            <Button variant="contained" color="secondary" onClick={addRating}>
+              Skicka rating
+            </Button>
+          </Box>
+        ) : (
+          <Alert severity="info" sx={{ mb: 4 }}>Logga in för att lämna en recension.</Alert>
+        )}
 
-            <Stack direction="row" spacing={2}>
-              <TextField
-                type="number"
-                inputProps={{ min: 1, max: 5 }}
-                value={rating}
-                onChange={(e) => setRating(e.target.value)}
-                label="Betyg 1-5"
-              />
-              <Button variant="contained" onClick={addRating}>
-                Skicka
-              </Button>
-            </Stack>
+        {/* Lista med recensioner */}
+        {product.ratings && product.ratings.length > 0 ? (
+          product.ratings.map((r, index) => (
+            <Card key={index} sx={{ mb: 2, p: 2, boxShadow: 1 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                <Typography variant="subtitle2" fontWeight="bold">
+                  Av: {r.author}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {new Date(r.createdAt).toLocaleDateString()}
+                </Typography>
+              </Box>
+              <Rating value={r.score} readOnly size="small" sx={{ mb: 1 }} />
+              <Typography variant="body2">Betyg: {r.score} av 5</Typography>
+            </Card>
+          ))
+        ) : (
+          <Typography color="text.secondary">Det finns inga recensioner för denna produkt ännu.</Typography>
+        )}
+      </Box>
 
-            <Divider />
-
-            <Typography variant="h6" fontWeight={700}>
-              Ratings
-            </Typography>
-
-            {product.ratings && product.ratings.length > 0 ? (
-              <Stack spacing={2}>
-                {product.ratings.map((r, index) => (
-                  <Paper key={index} variant="outlined" sx={{ p: 2 }}>
-                    <Typography fontWeight={700}>{r.score} / 5</Typography>
-                    <Typography variant="body2">Av: {r.author}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {new Date(r.createdAt).toLocaleDateString()}
-                    </Typography>
-                  </Paper>
-                ))}
-              </Stack>
-            ) : (
-              <Typography>Inga ratings än</Typography>
-            )}
-          </Stack>
-        </Paper>
-      </Grid>
-    </Grid>
+    </Box>
   );
 }
 

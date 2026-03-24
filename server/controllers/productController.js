@@ -56,6 +56,12 @@ async function addProductToCart(req, res) {
     res.status(response.status || 200).json(response);
 }
 
+async function payCart(req, res) {
+    const cartId = req.params.id;
+    const response = await productService.payCart(cartId);
+    res.status(response.status || 200).json(response);
+}
+
 module.exports = {
     getAllProducts,
     getProductById,
@@ -64,5 +70,6 @@ module.exports = {
     updateProduct,
     deleteProduct,
     addRating,
-    addProductToCart
+    addProductToCart,
+    payCart
 };

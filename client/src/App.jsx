@@ -1,79 +1,73 @@
 import { Link as RouterLink, Outlet } from "react-router-dom";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  Container,
-  Stack,
-  Box,
-} from "@mui/material";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import PeopleIcon from "@mui/icons-material/People";
-import AddBoxIcon from "@mui/icons-material/AddBox";
-import StorefrontIcon from "@mui/icons-material/Storefront";
+import { Box, AppBar, Toolbar, Typography, Button, Container } from "@mui/material";
+import { useUser } from "./contexts/UserContext";
 
 function App() {
+  const { currentUser } = useUser();
+
   return (
     <>
-      <AppBar position="sticky" elevation={2} color="primary">
-        <Container maxWidth="lg">
-          <Toolbar disableGutters sx={{ py: 1 }}>
-            <Typography
-              variant="h6"
-              component={RouterLink}
-              to="/"
-              sx={{
-                color: "inherit",
-                textDecoration: "none",
-                fontWeight: 700,
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                flexGrow: 1,
+      <Box sx={{ flexGrow: 1, mb: 4 }}>
+        {/* elevation={3} ger mer skugga */}
+        <AppBar position="static" elevation={3}>
+          <Toolbar>
+            
+            {/* Logga / Home */}
+            <Typography 
+              variant="h6" 
+              component={RouterLink} 
+              to="/" 
+              sx={{ 
+                flexGrow: 1, 
+                textDecoration: "none", 
+                color: "inherit", 
+                fontWeight: "bold",
+                letterSpacing: 1
               }}
             >
-              <StorefrontIcon />
-              Webbshop
+              SkruvLagret 
             </Typography>
 
-            <Stack direction="row" spacing={1}>
-              <Button
-                color="inherit"
-                component={RouterLink}
-                to="/cart"
-                startIcon={<ShoppingCartIcon />}
-              >
-                Varukorg
-              </Button>
+            {/* Navigationslänkar */}
+            <Button color="inherit" component={RouterLink} to="/cart" sx={{ fontWeight: 'medium' }}>
+              Kundvagn
+            </Button>
 
-              <Button
-                color="inherit"
-                component={RouterLink}
-                to="/users"
-                startIcon={<PeopleIcon />}
-              >
-                Användare
-              </Button>
+            <Button color="inherit" component={RouterLink} to="/users" sx={{ fontWeight: 'medium' }}>
+              Användare
+            </Button>
 
-              <Button
-                color="inherit"
-                component={RouterLink}
-                to="/products/new"
-                startIcon={<AddBoxIcon />}
-              >
-                Skapa produkt
-              </Button>
-            </Stack>
+            <Button color="inherit" component={RouterLink} to="/products/new" sx={{ fontWeight: 'medium' }}>
+              Skapa produkt
+            </Button>
+
+            {/* VISUALISERA VEM SOM ÄR INLOGGAD */}
+            <Box 
+              sx={{ 
+                ml: 2, 
+                px: 2, 
+                py: 0.5, 
+                // byter färg basserat på om inloggad eller inte
+                backgroundColor: currentUser ? "rgba(255,255,255,0.2)" : "transparent",
+                border: currentUser ? "none" : "1px solid rgba(255,255,255,0.5)",
+                borderRadius: 2,
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                {currentUser ? `${currentUser.firstName}` : "Ej inloggad"}
+              </Typography>
+            </Box>
+            
           </Toolbar>
-        </Container>
-      </AppBar>
-
-      <Box sx={{ py: 4, minHeight: "100vh", bgcolor: "#f5f7fb" }}>
-        <Container maxWidth="lg">
-          <Outlet />
-        </Container>
+        </AppBar>
       </Box>
+
+      {/* Container ramar in alla sidor (Outlet) så innehållet inte trycks mot skärmkanterna */}
+      <Container maxWidth="lg" sx={{ pb: 5 }}>
+        <Outlet />
+      </Container>
     </>
   );
 }

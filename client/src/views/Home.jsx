@@ -1,15 +1,22 @@
-import { Typography, Stack } from "@mui/material";
 import ProductList from "../components/ProductList";
+import { Box, Typography } from "@mui/material";
 
 function Home() {
   return (
-    <Stack spacing={3}>
-      <Typography variant="h3" fontWeight={700}>
-        Produkter
+    <Box sx={{ maxWidth: 1200, margin: "0 auto", padding: 3 }}>
+      <Typography 
+        variant="h3" 
+        component="h1" 
+        gutterBottom 
+        fontWeight="bold" 
+        align="center" 
+        sx={{ mb: 5, mt: 2 }}
+      >
+        Våra Produkter
       </Typography>
-
+      
       <ProductList />
-    </Stack>
+    </Box>
   );
 }
 

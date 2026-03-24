@@ -28,4 +28,7 @@ router.get('/carts/:id', productController.getCartById);
 // POST /api/carts/:cartId/products - Lägg till product i cart
 router.post('/carts/:cartId/products', productController.addProductToCart);
 
+// PUT /api/carts/:id/pay - Markera varukorg som betald
+router.put('/carts/:id/pay', productController.payCart);
+
 module.exports = router;

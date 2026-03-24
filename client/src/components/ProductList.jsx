@@ -1,81 +1,117 @@
 import { useEffect, useState } from "react";
 import { getAll } from "../services/ProductService";
 import { Link as RouterLink } from "react-router-dom";
+
+// MUI
 import {
-  Grid,
-  Card,
-  CardContent,
-  CardMedia,
+  Box,
   Typography,
   Button,
-  Stack,
+  Card,
+  CardMedia,
+  CardContent,
   CardActions,
+  Grid,
+  CircularProgress,
+  Alert
 } from "@mui/material";
 
 function ProductList() {
-  const [products, setProducts] = useState([]);
+  // Sätt state till null från början så vi kan visa en laddningssnurra
+  const [products, setProducts] = useState(null);
 
   useEffect(() => {
     async function loadProducts() {
       const data = await getAll();
-      setProducts(data);
+      setProducts(data || []);
     }
 
     loadProducts();
   }, []);
 
+  // Laddningsikon medan vi hämtar från databasen
+  if (products === null) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // Om databasen är tom
   if (products.length === 0) {
-    return <Typography>Inga produkter hittades</Typography>;
+    return <Alert severity="info">Inga produkter hittades i databasen.</Alert>;
   }
 
   return (
-    <Grid container spacing={3}>
-      {products.map((product) => (
+    // Grid-container skapar ett responsivt rutnät
+    <Grid container spacing={4}>
+      
+      {products.map(product => (
+        // xs=12 (mobil: 1 kolumn), sm=6 (tablet: 2 kolumner), md=4 (desktop: 3 kolumner)
         <Grid item xs={12} sm={6} md={4} key={product.id}>
-          <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            {product.imageUrl && (
+          
+          <Card 
+            sx={{ 
+              height: '100%', 
+              display: 'flex', 
+              flexDirection: 'column',
+              boxShadow: 2,
+              transition: '0.3s',
+              '&:hover': { boxShadow: 6, transform: 'translateY(-4px)' } // hover
+            }}
+          >
+            {/* Produktbild */}
+            {product.imageUrl ? (
               <CardMedia
                 component="img"
-                height="220"
+                height="200"
                 image={product.imageUrl}
                 alt={product.name}
+                sx={{ objectFit: 'cover' }}
               />
+            ) : (
+              <Box sx={{ height: 200, backgroundColor: "grey.200", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Typography variant="caption" color="text.secondary">Ingen bild</Typography>
+              </Box>
             )}
-
+            
+            {/* Produktinfo */}
             <CardContent sx={{ flexGrow: 1 }}>
-              <Stack spacing={1}>
-                <Typography variant="h5" fontWeight={700}>
-                  {product.name}
-                </Typography>
-
-                <Typography variant="h6" color="primary">
-                  {product.price} kr
-                </Typography>
-              </Stack>
+              <Typography gutterBottom variant="h6" component="h2" fontWeight="bold">
+                {product.name}
+              </Typography>
+              <Typography variant="h6" color="success.main" fontWeight="bold">
+                {product.price} kr
+              </Typography>
             </CardContent>
-
-            <CardActions sx={{ px: 2, pb: 2 }}>
-              <Stack direction="row" spacing={1}>
-                <Button
-                  variant="contained"
-                  component={RouterLink}
-                  to={`/products/${product.id}`}
-                >
-                  Visa
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  component={RouterLink}
-                  to={`/products/${product.id}/edit`}
-                >
-                  Ändra
-                </Button>
-              </Stack>
+            
+            {/* Knappar */}
+            <CardActions sx={{ justifyContent: "space-between", px: 2, pb: 2 }}>
+              <Button 
+                component={RouterLink} 
+                to={`/products/${product.id}`} 
+                variant="contained" 
+                color="primary" 
+                size="small"
+              >
+                Visa Produkt
+              </Button>
+              <Button 
+                component={RouterLink} 
+                to={`/products/${product.id}/edit`} 
+                variant="outlined" 
+                color="secondary" 
+                size="small"
+              >
+                Ändra
+              </Button>
             </CardActions>
+            
           </Card>
         </Grid>
       ))}
+      
     </Grid>
   );
 }

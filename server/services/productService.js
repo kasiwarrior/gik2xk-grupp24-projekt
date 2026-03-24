@@ -180,6 +180,23 @@ async function addProductToCart(cartId, productId, amountToAdd = 1) {
     }
 }
 
+// Uppdatera en varukorg till betald
+async function payCart(cartId) {
+    try {
+        const cart = await db.cart.findOne({ where: { id: cartId } });
+        if (!cart) {
+            return createResponseError(404, 'Varukorgen hittades inte.');
+        }
+
+        cart.payed = true;
+        await cart.save(); // Sparar ändringen i databasen
+
+        return createResponseMessage(200, 'Varukorgen är nu betald.');
+    } catch (error) {
+        return createResponseError(500, error.message);
+    }
+}
+
 
 // Helper: formatering
 function _formatProduct(product) {
@@ -213,5 +230,6 @@ module.exports = {
     updateProduct,
     deleteProduct,
     addRating,
-    addProductToCart
+    addProductToCart,
+    payCart
 };
