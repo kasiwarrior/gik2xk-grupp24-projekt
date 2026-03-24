@@ -16,7 +16,7 @@ import StorefrontIcon from "@mui/icons-material/Storefront";
 function App() {
   return (
     <>
-      <AppBar position="sticky" elevation={2}>
+      <AppBar position="sticky" elevation={2} color="primary">
         <Container maxWidth="lg">
           <Toolbar disableGutters sx={{ py: 1 }}>
             <Typography

@@ -1,13 +1,14 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-
 import App from "./App.jsx";
 import Home from "./views/Home.jsx";
 import ProductEdit from "./views/ProductEdit.jsx";
 import ProductDetails from "./views/ProductDetails.jsx";
 import Cart from "./views/Cart.jsx";
 import UserList from "./views/UserList.jsx";
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "./styles/theme";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -50,6 +51,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider theme={theme}>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </StrictMode>
 );
