@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { getAll } from "../services/ProductService";
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
+import {
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Button,
+  Stack,
+  CardActions,
+} from "@mui/material";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -8,41 +18,65 @@ function ProductList() {
   useEffect(() => {
     async function loadProducts() {
       const data = await getAll();
-
-      console.log("Produkter från backend:", data);
-
       setProducts(data);
     }
 
     loadProducts();
   }, []);
 
+  if (products.length === 0) {
+    return <Typography>Inga produkter hittades</Typography>;
+  }
+
   return (
-    <div>
-      {products.length === 0 && <p>Inga produkter hittades</p>}
+    <Grid container spacing={3}>
+      {products.map((product) => (
+        <Grid item xs={12} sm={6} md={4} key={product.id}>
+          <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+            {product.imageUrl && (
+              <CardMedia
+                component="img"
+                height="220"
+                image={product.imageUrl}
+                alt={product.name}
+              />
+            )}
 
-      {products.map(product => (
-        <div key={product.id}>
+            <CardContent sx={{ flexGrow: 1 }}>
+              <Stack spacing={1}>
+                <Typography variant="h5" fontWeight={700}>
+                  {product.name}
+                </Typography>
 
-          <h3>{product.name}</h3>
+                <Typography variant="h6" color="primary">
+                  {product.price} kr
+                </Typography>
+              </Stack>
+            </CardContent>
 
-          <p>{product.price} kr</p>
+            <CardActions sx={{ px: 2, pb: 2 }}>
+              <Stack direction="row" spacing={1}>
+                <Button
+                  variant="contained"
+                  component={RouterLink}
+                  to={`/products/${product.id}`}
+                >
+                  Visa
+                </Button>
 
-          <Link to={`/products/${product.id}`}>
-            Visa produkt
-          </Link>
-
-          <br />
-
-          <Link to={`/products/${product.id}/edit`}>
-            Ändra produkt
-          </Link>
-
-          <hr />
-
-        </div>
+                <Button
+                  variant="outlined"
+                  component={RouterLink}
+                  to={`/products/${product.id}/edit`}
+                >
+                  Ändra
+                </Button>
+              </Stack>
+            </CardActions>
+          </Card>
+        </Grid>
       ))}
-    </div>
+    </Grid>
   );
 }
 

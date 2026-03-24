@@ -1,33 +1,79 @@
-import { Link, Outlet } from "react-router-dom";
-import { Box, AppBar, Toolbar, Typography, Button } from "@mui/material";
+import { Link as RouterLink, Outlet } from "react-router-dom";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Container,
+  Stack,
+  Box,
+} from "@mui/material";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import PeopleIcon from "@mui/icons-material/People";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import StorefrontIcon from "@mui/icons-material/Storefront";
 
 function App() {
   return (
     <>
-      <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
-          <Toolbar>
-            <Typography sx={{ flexGrow: 1 }}>
-              <Link to="/">Home</Link>
+      <AppBar position="sticky" elevation={2}>
+        <Container maxWidth="lg">
+          <Toolbar disableGutters sx={{ py: 1 }}>
+            <Typography
+              variant="h6"
+              component={RouterLink}
+              to="/"
+              sx={{
+                color: "inherit",
+                textDecoration: "none",
+                fontWeight: 700,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                flexGrow: 1,
+              }}
+            >
+              <StorefrontIcon />
+              Webbshop
             </Typography>
 
-            <Button color="inherit">
-              <Link to="/cart">Varukorg</Link>
-            </Button>
+            <Stack direction="row" spacing={1}>
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/cart"
+                startIcon={<ShoppingCartIcon />}
+              >
+                Varukorg
+              </Button>
 
-            <Button color="inherit">
-              <Link to="/users">Användare</Link>
-            </Button>
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/users"
+                startIcon={<PeopleIcon />}
+              >
+                Användare
+              </Button>
 
-            <Button color="inherit">
-              <Link to="/products/new">Skapa produkt</Link>
-            </Button>
-            
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/products/new"
+                startIcon={<AddBoxIcon />}
+              >
+                Skapa produkt
+              </Button>
+            </Stack>
           </Toolbar>
-        </AppBar>
-      </Box>
+        </Container>
+      </AppBar>
 
-      <Outlet />
+      <Box sx={{ py: 4, minHeight: "100vh", bgcolor: "#f5f7fb" }}>
+        <Container maxWidth="lg">
+          <Outlet />
+        </Container>
+      </Box>
     </>
   );
 }

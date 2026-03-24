@@ -1,8 +1,17 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link as RouterLink } from "react-router-dom";
 import { getOne } from "../services/ProductService";
 import axios from "../services/api";
-import { Link } from "react-router-dom";
+import {
+  Grid,
+  Paper,
+  Typography,
+  Button,
+  Stack,
+  TextField,
+  Box,
+  Divider,
+} from "@mui/material";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -23,12 +32,11 @@ function ProductDetails() {
     try {
       await axios.post("/carts/1/products", {
         productId: Number(id),
-        amount: 1
+        amount: 1,
       });
 
       alert("Produkten lades till i kundvagnen");
     } catch (e) {
-      e?.response ? console.log(e.response.data) : console.log(e);
       alert("Det gick inte att lägga till i kundvagnen");
     }
   }
@@ -37,21 +45,19 @@ function ProductDetails() {
     try {
       await axios.post(`/products/${id}/ratings`, {
         userId: 1,
-        score: Number(rating)
+        score: Number(rating),
       });
-
-      alert("Rating sparad");
 
       const updatedProduct = await getOne(id);
       setProduct(updatedProduct);
       setRating("");
+      alert("Betyg sparat");
     } catch (e) {
-      e?.response ? console.log(e.response.data) : console.log(e);
-      alert("Det gick inte att spara rating");
+      alert("Det gick inte att spara betyget");
     }
   }
 
-  if (!product) return <p>Laddar...</p>;
+  if (!product) return <Typography>Laddar...</Typography>;
 
   const averageRating =
     product.ratings && product.ratings.length > 0
@@ -62,63 +68,110 @@ function ProductDetails() {
       : null;
 
   return (
-    <div>
-      <h2>{product.name}</h2>
+    <Grid container spacing={4}>
+      <Grid item xs={12} md={5}>
+        <Paper sx={{ p: 2, borderRadius: 3 }}>
+          {product.imageUrl ? (
+            <Box
+              component="img"
+              src={product.imageUrl}
+              alt={product.name}
+              sx={{ width: "100%", borderRadius: 2 }}
+            />
+          ) : (
+            <Box
+              sx={{
+                height: 320,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: "#eee",
+                borderRadius: 2,
+              }}
+            >
+              <Typography>Ingen bild</Typography>
+            </Box>
+          )}
+        </Paper>
+      </Grid>
 
-      <p>{product.description}</p>
+      <Grid item xs={12} md={7}>
+        <Paper sx={{ p: 4, borderRadius: 3 }}>
+          <Stack spacing={3}>
+            <Typography variant="h4" fontWeight={700}>
+              {product.name}
+            </Typography>
 
-      <p>{product.price} kr</p>
+            <Typography variant="h5" color="primary" fontWeight={700}>
+              {product.price} kr
+            </Typography>
 
-      {product.imageUrl && (
-        <img
-          src={product.imageUrl}
-          alt={product.name}
-          width="200"
-        />
-      )}
+            <Typography variant="body1">
+              {product.description || "Ingen beskrivning"}
+            </Typography>
 
-      <div style={{ marginTop: "1rem" }}>
-        <button onClick={addToCart}>Lägg i kundvagn</button>
-      </div>
+            <Stack direction="row" spacing={2}>
+              <Button variant="contained" onClick={addToCart}>
+                Lägg i kundvagn
+              </Button>
 
-      <Link to="/cart">Gå till varukorg</Link>
+              <Button variant="outlined" component={RouterLink} to="/cart">
+                Gå till varukorg
+              </Button>
+            </Stack>
 
-      <h3>Snittbetyg</h3>
-      {averageRating ? (
-        <p>{averageRating} / 5</p>
-      ) : (
-        <p>Inga betyg än</p>
-      )}
+            <Divider />
 
-      <h3>Ratings</h3>
+            <Typography variant="h6" fontWeight={700}>
+              Snittbetyg
+            </Typography>
 
-      {product.ratings && product.ratings.length > 0 ? (
-        product.ratings.map((r, index) => (
-          <div key={index}>
-            <strong>{r.score} / 5</strong>
-            <br />
-            Av: {r.author}
-            <br />
-            {new Date(r.createdAt).toLocaleDateString()}
-            <hr />
-          </div>
-        ))
-      ) : (
-        <p>Inga ratings än</p>
-      )}
+            <Typography>
+              {averageRating ? `${averageRating} / 5` : "Inga betyg än"}
+            </Typography>
 
-      <h3>Lägg betyg</h3>
+            <Typography variant="h6" fontWeight={700}>
+              Lägg betyg
+            </Typography>
 
-      <input
-        type="number"
-        min="1"
-        max="5"
-        value={rating}
-        onChange={(e) => setRating(e.target.value)}
-      />
+            <Stack direction="row" spacing={2}>
+              <TextField
+                type="number"
+                inputProps={{ min: 1, max: 5 }}
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+                label="Betyg 1-5"
+              />
+              <Button variant="contained" onClick={addRating}>
+                Skicka
+              </Button>
+            </Stack>
 
-      <button onClick={addRating}>Skicka rating</button>
-    </div>
+            <Divider />
+
+            <Typography variant="h6" fontWeight={700}>
+              Ratings
+            </Typography>
+
+            {product.ratings && product.ratings.length > 0 ? (
+              <Stack spacing={2}>
+                {product.ratings.map((r, index) => (
+                  <Paper key={index} variant="outlined" sx={{ p: 2 }}>
+                    <Typography fontWeight={700}>{r.score} / 5</Typography>
+                    <Typography variant="body2">Av: {r.author}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {new Date(r.createdAt).toLocaleDateString()}
+                    </Typography>
+                  </Paper>
+                ))}
+              </Stack>
+            ) : (
+              <Typography>Inga ratings än</Typography>
+            )}
+          </Stack>
+        </Paper>
+      </Grid>
+    </Grid>
   );
 }
 

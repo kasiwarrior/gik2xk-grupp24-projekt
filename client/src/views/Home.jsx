@@ -1,11 +1,15 @@
+import { Typography, Stack } from "@mui/material";
 import ProductList from "../components/ProductList";
 
 function Home() {
   return (
-    <div>
-      <h1>Produkter</h1>
+    <Stack spacing={3}>
+      <Typography variant="h3" fontWeight={700}>
+        Produkter
+      </Typography>
+
       <ProductList />
-    </div>
+    </Stack>
   );
 }
 
