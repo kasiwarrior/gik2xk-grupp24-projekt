@@ -163,7 +163,7 @@ function ProductDetails() {
       </Card>
 
       <Button component={RouterLink} to="/cart" variant="outlined" sx={{ mb: 4 }}>
-        Gå till varukorg
+        Gå till kundvagn
       </Button>
 
       {/* Betygssektion */}
