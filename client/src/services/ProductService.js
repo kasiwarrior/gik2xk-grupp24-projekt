@@ -1,5 +1,6 @@
 import axios from './api';
 
+//Hämtar alla produkter från backend.
 export async function getAll() {
   try {
     const response = await axios.get('/products');
@@ -11,6 +12,7 @@ export async function getAll() {
   }
 }
 
+//Hämtar en specifik produkt baserat på id.
 export async function getOne(id) {
   try {
     const response = await axios.get(`/products/${id}`);
@@ -22,6 +24,7 @@ export async function getOne(id) {
   }
 }
 
+//Skapa en ny produkt.
 export async function create(product) {
   try {
     const response = await axios.post('/products', product);
@@ -33,6 +36,7 @@ export async function create(product) {
   }
 }
 
+//Uppdaterar en befintlig produkt.
 export async function update(id, product) {
   try {
     const response = await axios.put(`/products/${id}`, product);
@@ -44,6 +48,7 @@ export async function update(id, product) {
   }
 }
 
+//Tar bort en produkt.
 export async function remove(id) {
   try {
     const response = await axios.delete(`/products/${id}`);
